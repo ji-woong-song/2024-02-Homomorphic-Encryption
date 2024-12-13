@@ -5,7 +5,7 @@
 #ifndef SEAL_REAL_DOMAINDECRYPTOR_H
 #define SEAL_REAL_DOMAINDECRYPTOR_H
 #include "seal/seal.h."
-#include "../decoder.h"
+#include "../transform/decoder.h"
 #include <vector>
 
 class DomainDecryptor {

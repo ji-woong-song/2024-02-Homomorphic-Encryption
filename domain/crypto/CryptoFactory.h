@@ -6,8 +6,8 @@
 #define SEAL_REAL_CRYPTOFACTORY_H
 
 #include "seal/seal.h"
-#include "../encoder.h"
-#include "../decoder.h"
+#include "../transform/encoder.h"
+#include "../transform/decoder.h"
 #include "DomainEncryptor.h"
 #include "DomainDecryptor.h"
 #include <memory>

@@ -6,7 +6,7 @@
 #define SEAL_REAL_DOMAINENCRYPTOR_H
 
 #include "seal/seal.h"
-#include "../encoder.h"
+#include "../transform/encoder.h"
 #include <vector>
 
 class DomainEncryptor {
