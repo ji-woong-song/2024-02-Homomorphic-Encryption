@@ -14,8 +14,11 @@ add_executable(server main_server.cpp
         domain/Monitor.hpp
         domain/respository.hpp
         domain/MatchingService.hpp
-        domain/encoder.h
-        domain/encoder.cpp
+        domain/transform/encoder.h
+        domain/transform/encoder.cpp
+        domain/crypto/DomainEncryptor.cpp
+        domain/crypto/DomainEncryptor.h
+        domain/crypto/CryptoFactory.h
 )
 
 add_executable(client_employer main_client_employer.cpp
@@ -26,9 +29,11 @@ add_executable(client_employer main_client_employer.cpp
         client/EmployerClient.cpp
         client/EmployerClient.h
         util/TCPClient.hpp
-        domain/encoder.h
-        domain/encoder.cpp
-        domain/decoder.cpp
+        domain/transform/encoder.h
+        domain/transform/encoder.cpp
+        domain/transform/decoder.cpp
+        domain/crypto/CryptoFactory.h
+        domain/crypto/DomainDecryptor.h
 )
 
 add_executable(client_employee main_client_employee.cpp
@@ -39,19 +44,34 @@ add_executable(client_employee main_client_employee.cpp
         util/TCPClient.hpp
         domain/respository.hpp
         domain/data.h
-        domain/encoder.h
-        domain/decoder.h
-        domain/encoder.cpp
-        domain/decoder.cpp
+        domain/transform/encoder.h
+        domain/transform/decoder.h
+        domain/transform/encoder.cpp
+        domain/transform/decoder.cpp
+        domain/crypto/DomainEncryptor.cpp
+        domain/crypto/DomainEncryptor.h
+        domain/crypto/CryptoFactory.cpp
+        domain/crypto/CryptoFactory.h
+        domain/crypto/DomainDecryptor.cpp
+        domain/crypto/DomainDecryptor.h
 )
 
 add_executable(test main.cpp
-        domain/decoder.cpp
-        domain/decoder.h
-        domain/encoder.cpp
-        domain/encoder.h
+        domain/transform/decoder.cpp
+        domain/transform/decoder.h
+        domain/transform/encoder.cpp
+        domain/transform/encoder.h
+        domain/crypto/DomainDecryptor.cpp
+        domain/crypto/DomainDecryptor.h
+        domain/crypto/DomainEncryptor.cpp
+        domain/crypto/DomainEncryptor.h
+        domain/crypto/CryptoFactory.cpp
+        domain/crypto/CryptoFactory.h
+        util/util.cpp
+        util/util.h
 )
 
 target_link_libraries(server PRIVATE SEAL::seal)
 target_link_libraries(client_employer PRIVATE SEAL::seal)
 target_link_libraries(client_employee PRIVATE SEAL::seal)
+target_link_libraries(test PRIVATE SEAL::seal)
