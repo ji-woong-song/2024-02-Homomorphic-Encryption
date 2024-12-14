@@ -12,3 +12,7 @@ DomainEncryptor CryptoFactory::createEncryptor(seal::PublicKey publicKey) {
 DomainDecryptor CryptoFactory::createDecryptor(seal::SecretKey secretKey) {
     return {context, *decoder, secretKey};
 }
+
+DomainEvaluator CryptoFactory::createEvaluator(seal::PublicKey publicKey, seal::RelinKeys relinKeys) {
+    return {context, relinKeys, publicKey, width_per_encode, max_slot };
+}
