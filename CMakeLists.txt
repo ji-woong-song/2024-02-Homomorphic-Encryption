@@ -21,6 +21,8 @@ add_executable(server main_server.cpp
         domain/crypto/CryptoFactory.h
         domain/calculator/calculator.cpp
         domain/calculator/calculator.h
+        domain/crypto/DomainEvaluator.cpp
+        domain/crypto/DomainEvaluator.h
 )
 
 add_executable(client_employer main_client_employer.cpp
@@ -79,6 +81,8 @@ add_executable(test main.cpp
         util/util.h
         domain/calculator/calculator.cpp
         domain/calculator/calculator.h
+        domain/crypto/DomainEvaluator.cpp
+        domain/crypto/DomainEvaluator.h
 )
 
 target_link_libraries(server PRIVATE SEAL::seal)
