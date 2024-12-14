@@ -90,7 +90,7 @@ public:
             plain_i.resize(1);
             plain_i[0] = i;
             Ciphertext encrypted_i, encrypted_x_i;
-
+            encryptor.encrypt(plain_i, encrypted_i);
             if (i > target) {
                 evaluator.sub(encrypted_i, X, encrypted_x_i);
             } else {
