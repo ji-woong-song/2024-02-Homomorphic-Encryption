@@ -83,6 +83,8 @@ add_executable(test main.cpp
         domain/calculator/calculator.h
         domain/crypto/DomainEvaluator.cpp
         domain/crypto/DomainEvaluator.h
+        domain/checker.cpp
+        domain/checker.h
 )
 
 target_link_libraries(server PRIVATE SEAL::seal)

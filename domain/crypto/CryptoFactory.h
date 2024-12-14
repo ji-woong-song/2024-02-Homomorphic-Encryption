@@ -11,6 +11,7 @@
 #include "DomainEncryptor.h"
 #include "DomainDecryptor.h"
 #include "DomainEvaluator.h"
+#include "../checker.h"
 #include <memory>
 
 class CryptoFactory {
@@ -31,6 +32,8 @@ public:
     DomainEncryptor createEncryptor(seal::PublicKey publicKey);
     DomainDecryptor createDecryptor(seal::SecretKey secretKey);
     DomainEvaluator createEvaluator(seal::PublicKey publicKey, seal::RelinKeys relinKeys);
+    Checker createChecker(DomainEvaluator& evaluator, DomainEncryptor& encryptor, Calculator& calculator);
+    Calculator createCalculator();
 };
 
 

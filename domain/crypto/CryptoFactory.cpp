@@ -16,3 +16,11 @@ DomainDecryptor CryptoFactory::createDecryptor(seal::SecretKey secretKey) {
 DomainEvaluator CryptoFactory::createEvaluator(seal::PublicKey publicKey, seal::RelinKeys relinKeys) {
     return {context, relinKeys, publicKey, width_per_encode, max_slot };
 }
+
+Checker CryptoFactory::createChecker(DomainEvaluator &evaluator, DomainEncryptor &encryptor, Calculator& calculator) {
+    return {context, *encoder, encryptor, evaluator, calculator, width_per_encode };
+}
+
+Calculator CryptoFactory::createCalculator() {
+    return {context, width_per_encode};
+}
