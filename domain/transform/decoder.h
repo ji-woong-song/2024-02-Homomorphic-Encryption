@@ -19,7 +19,6 @@ private:
 public:
     WidthDecoder(int width, int maxWidth) {
         this->width = width;
-        this->maxSlot = maxWidth;
     }
     int decode(std::vector<size_t> &enc) override;
 //    std::vector<int> decode_batch(std::vector<size_t> &enc) override;

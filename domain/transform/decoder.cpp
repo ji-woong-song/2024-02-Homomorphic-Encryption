@@ -5,11 +5,14 @@
 #include "decoder.h"
 
 int WidthDecoder::decode(std::vector<size_t>& enc) {
-    int result = -1;
+    int result = 0;
+    int count = 0;
     for (int i = enc.size() - 1; i >= 0 ; i--) {
         if (enc[i] == 0) continue;
+        count += 1;
         result = result * width + (enc[i] - 1);
     }
+    if (count == 0) return -1;
     return result;
 }
 //
