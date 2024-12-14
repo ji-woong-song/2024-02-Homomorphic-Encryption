@@ -17,8 +17,8 @@ public:
     DomainDecryptor(seal::SEALContext& context, Decoder& decoder, seal::SecretKey secretKey)
     : context(context), decoder(decoder), decryptor(seal::Decryptor(context, secretKey)) {}
 
-    int decrypteAge(const seal::Ciphertext& age);
-    std::vector<int> decrypteSkills(const seal::Ciphertext& skill);
+    int decrypte_single(const std::vector<seal::Ciphertext>& age);
+    std::vector<int> decrypte_multiple(const std::vector<std::vector<seal::Ciphertext>>& skill);
 };
 
 

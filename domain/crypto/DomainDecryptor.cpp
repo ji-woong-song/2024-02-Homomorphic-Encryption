@@ -4,26 +4,27 @@
 
 #include "DomainDecryptor.h"
 
-int DomainDecryptor::decrypteAge(const seal::Ciphertext &age) {
+int DomainDecryptor::decrypte_single(const std::vector<seal::Ciphertext>& age){
     using namespace std;
     using namespace seal;
-    Plaintext plaintext;
-    decryptor.decrypt(age, plaintext);
-    BatchEncoder batchEncoder(context);
+
     vector<size_t> vec;
-    batchEncoder.decode(plaintext, vec);
+    for (auto& cipher: age) {
+        Plaintext plaintext;
+        decryptor.decrypt(cipher, plaintext);
+        vec.push_back(plaintext[0]);
+    }
     int result = decoder.decode(vec);
     return result;
 }
 
-std::vector<int> DomainDecryptor::decrypteSkills(const seal::Ciphertext &skill) {
+std::vector<int> DomainDecryptor::decrypte_multiple(const std::vector<std::vector<seal::Ciphertext>>& skill){
     using namespace std;
     using namespace seal;
-    Plaintext plaintext;
-    decryptor.decrypt(skill, plaintext);
-    BatchEncoder batchEncoder(context);
-    vector<size_t> vec;
-    batchEncoder.decode(plaintext, vec);
-    std::vector<int> result = decoder.decode_batch(vec);
+
+    vector<int> result;
+    for (auto& single : skill) {
+        result.push_back(decrypte_single(single));
+    }
     return result;
 }

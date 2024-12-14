@@ -4,31 +4,27 @@
 
 #include "DomainEncryptor.h"
 
-seal::Ciphertext DomainEncryptor::encrypteAge(int age) {
+std::vector<seal::Ciphertext> DomainEncryptor::encrypte_single(int age) {
     using namespace seal;
     std::vector<size_t> encoded_age = encoder.encode(age);
-    BatchEncoder batchEncoder(context);
-    Plaintext plaintext;
-    batchEncoder.encode(encoded_age, plaintext);
-    Ciphertext ciphertext;
-    encryptor.encrypt(plaintext, ciphertext);
-    return ciphertext;
+    std::vector<seal::Ciphertext> vec;
+    for (size_t &enc: encoded_age) {
+        Plaintext plaintext(1);
+        plaintext[0] = enc;
+        Ciphertext ciphertext;
+        encryptor.encrypt(plaintext, ciphertext);
+        vec.push_back(ciphertext);
+    }
+    return vec;
 }
 
-seal::Ciphertext DomainEncryptor::encrypteSkills(std::vector<int>& skills) {
+std::vector<std::vector<seal::Ciphertext>> DomainEncryptor::encrypte_multiple(std::vector<int>& skills) {
     using namespace std;
     using namespace seal;
-    vector<size_t> encoded_skill;
+
+    std::vector<std::vector<seal::Ciphertext>> vec;
     for (int skill : skills) {
-        const vector <size_t> &res = encoder.encode(skill);
-        for (const size_t& item: res) {
-            encoded_skill.push_back(item);
-        }
+        vec.push_back(encrypte_single(skill));
     }
-    BatchEncoder batchEncoder(context);
-    Plaintext plaintext;
-    batchEncoder.encode(encoded_skill, plaintext);
-    Ciphertext ciphertext;
-    encryptor.encrypt(plaintext, ciphertext);
-    return ciphertext;
+    return vec;
 }

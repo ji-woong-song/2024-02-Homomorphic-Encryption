@@ -17,8 +17,8 @@ private:
 public:
     DomainEncryptor(seal::SEALContext& context, Encoder& encoder, seal::PublicKey publicKey)
     : context(context), encoder(encoder), encryptor(seal::Encryptor(context, publicKey)) {}
-    seal::Ciphertext encrypteAge(int age);
-    seal::Ciphertext encrypteSkills(std::vector<int>& skills);
+    std::vector<seal::Ciphertext> encrypte_single(int age);
+    std::vector<std::vector<seal::Ciphertext>> encrypte_multiple(std::vector<int>& skills);
 };
 
 
