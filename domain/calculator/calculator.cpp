@@ -13,14 +13,14 @@ size_t Calculator::get_numerator_reverse_element(size_t x) {
             break;
         }
     }
-    std::cout << "numerator : " << numerator << "c : " << c << "(numerator * c) % plain_modulus ";
+    std::cout << "numerator : " << numerator << " c : " << c << "(numerator * c) % plain_modulus ";
     std::cout << (numerator * c) % plain_modulus <<  "\n";
     return c;
 }
 
 size_t Calculator::get_numerator(const size_t& target) {
     size_t numerator = 1;
-    for (int i = 0; i <= width; i++) {
+    for (int i = 1; i <= width; i++) {
         if (i == target) continue;
         if (i < target) {
             numerator *= (target - i);
