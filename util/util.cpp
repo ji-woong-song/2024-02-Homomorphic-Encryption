@@ -50,21 +50,21 @@ seal::SEALContext load_context(
     parms.set_coeff_modulus(CoeffModulus::Create(poly_modulus_degree, {60, 60, 60, 60, 60}));
 
     SEALContext context(parms);
+    cout << context.first_context_data()->parms().plain_modulus().value() << "\n";
     if (!context.parameters_set()) {
-        cout << "파라미터 설정에 실패했습니다. 파라미터를 확인하세요." << endl;
+        cout << "parameter set failed" << endl;
         auto error = context.parameter_error_message();
-        cout << "에러 메시지: " << error << endl;
+        cout << "error: " << error << endl;
     }
 
 
     for (const auto &coeff_prime : parms.coeff_modulus()) {
         uint64_t gcd_value = gcd(plain_modulus_value, coeff_prime.value());
         if (gcd_value != 1) {
-            cout << "경고: 평문 모듈러스와 계수 모듈러스의 소수 "
-                 << coeff_prime.value() << "이(가) 서로소가 아닙니다. GCD: " << gcd_value << endl;
+            cout << "plain modulus and coeff modulus prime" << coeff_prime.value() << "is not coprime. GCD: " << gcd_value << endl;
         }
     }
-    cout << "평문 모듈러스와 계수 모듈러스가 호환됩니다." << endl;
+    cout << "plain modulus and coeff modulus prime is coprime" << endl;
     return context;
 }
 
