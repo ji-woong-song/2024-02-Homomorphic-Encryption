@@ -5,7 +5,7 @@
 #ifndef SEAL_REAL_MATCHINGSERVICE_HPP
 #define SEAL_REAL_MATCHINGSERVICE_HPP
 
-#include "respository.hpp"
+#include "../repository.hpp"
 #include "matcher.hpp"
 
 class MatchingService {

@@ -27,6 +27,7 @@ public:
     seal::Ciphertext evaluate_matching_circuit(const size_t& target, const size_t& c, seal::Ciphertext& origin);
     seal::Ciphertext evaluate_intersection(std::vector<seal::Ciphertext>& cipertexts);
     seal::Ciphertext evaluate_union(std::vector<seal::Ciphertext>& cipertexts);
+    void evaluate_div_inplace(seal::Ciphertext& a, size_t c);
 };
 
 

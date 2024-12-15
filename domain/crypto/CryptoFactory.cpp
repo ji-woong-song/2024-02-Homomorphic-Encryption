@@ -18,9 +18,9 @@ DomainEvaluator CryptoFactory::createEvaluator(seal::Evaluator& evaluator, seal:
 
 Checker CryptoFactory::createChecker(
         DomainEvaluator &evaluator, DomainEncryptor &encryptor,
-        Calculator& calculator, Monitor& monitor
+        Calculator& calculator, std::vector<int>& c_vector
 ) {
-    return {context, *encoder, encryptor, evaluator, calculator, monitor, width_per_encode };
+    return {context, *encoder, encryptor, evaluator, calculator,c_vector, width_per_encode };
 }
 
 Calculator CryptoFactory::createCalculator() {

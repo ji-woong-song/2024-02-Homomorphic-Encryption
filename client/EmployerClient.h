@@ -7,12 +7,13 @@
 
 #include "seal/seal.h"
 #include "SkillTable.h"
+#include "../util/util.h"
 
 struct EmployerWant {
     int min_age;
     int max_age;
     std::vector<size_t> age;
-    std::vector<std::pair<size_t, size_t>> skill;
+    std::vector<std::string> skill;
 };
 
 class EmployerClient {
@@ -40,11 +41,12 @@ public:
     void reset_skill();
     void show_age_condition();
     void show_skills_condition();
-    /*
-     * update server data with local state
-     * */
-    void query();
-    void sync_key();
+    void query(int id);
+
+    // Public key와 Relin key를 저장하는 함수
+    void save_keys(const std::string& employer_id);
+
+    void query_result(int id);
 };
 
 

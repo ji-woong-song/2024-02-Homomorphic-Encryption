@@ -16,7 +16,7 @@ public:
             decryptor(decryptor), plain_modulus_value(plain_modulus_value) {
     }
     void printNoise(seal::Ciphertext& ciphertext) {
-        std::cout << "노이즈 예산 :" << this->decryptor.invariant_noise_budget(ciphertext) << " bits" << std::endl;
+        std::cout << "noise :" << this->decryptor.invariant_noise_budget(ciphertext) << " bits" << std::endl;
     }
 
     void debug(seal::Ciphertext &ciphertext) {
@@ -24,7 +24,7 @@ public:
         decryptor.decrypt(ciphertext, plain_result);
         // 결과 출력
         size_t result = stoull(plain_result.to_string()) % plain_modulus_value;
-        std::cout << "연산 결과 : " << result << std::endl;
+        std::cout << "evaluation result : " << result << std::endl;
     }
 };
 

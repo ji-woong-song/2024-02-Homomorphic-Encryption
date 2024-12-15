@@ -32,7 +32,7 @@ public:
     DomainEncryptor createEncryptor(seal::Encryptor& encryptor);
     DomainDecryptor createDecryptor(seal::Decryptor& decryptor);
     DomainEvaluator createEvaluator(seal::Evaluator& evaluator, seal::RelinKeys& relinKeys, seal::Encryptor& encryptor);
-    Checker createChecker(DomainEvaluator& evaluator, DomainEncryptor& encryptor, Calculator& calculator, Monitor& monitor);
+    Checker createChecker(DomainEvaluator& evaluator, DomainEncryptor& encryptor, Calculator& calculator, std::vector<int>& c_vector);
     Calculator createCalculator();
 };
 

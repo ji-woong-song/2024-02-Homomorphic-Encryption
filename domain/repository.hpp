@@ -2,8 +2,8 @@
 // Created by jiwoong_dev on 2024-12-08.
 //
 
-#ifndef SEAL_REAL_RESPOSITORY_HPP
-#define SEAL_REAL_RESPOSITORY_HPP
+#ifndef SEAL_REAL_REPOSITORY_HPP
+#define SEAL_REAL_REPOSITORY_HPP
 
 #include "data.h"
 #include "../util/util.h"
@@ -44,27 +44,25 @@ public:
         return pub_keys;
     }
 
-    void save_employee_data(std::string& employee_id, std::string& employer_id, EmployeeData& data) {
+    void save_employee_data(const std::string& employee_id, const std::string& employer_id, EmployeeData& data) {
         std::string dir_path = employee_data_path + employer_id + "/" + employee_id;
         std::filesystem::create_directories(dir_path);
 
-        // Save age pair
-        std::string age_path_1 = dir_path + "/age_1";
-        cipher_save(data.age.first, age_path_1);
-        std::string age_path_2 = dir_path + "/age_2";
-        cipher_save(data.age.second, age_path_2);
+        // Save age vector
+        for (size_t i = 0; i < data.age.size(); ++i) {
+            std::string age_path = dir_path + "/age_" + std::to_string(i);
+            cipher_save(data.age[i], age_path);
+        }
 
-        // Save skills pairs
+        // Save skills vectors
         if (!std::filesystem::exists(dir_path + "/skills")) {
             std::filesystem::create_directories(dir_path + "/skills");
         }
-        int index = 0;
-        for (auto &skill : data.skills) {
-            std::string skill_path_1 = dir_path + "/skills/" + std::to_string(index) + "_1";
-            cipher_save(skill.first, skill_path_1);
-            std::string skill_path_2 = dir_path + "/skills/" + std::to_string(index) + "_2";
-            cipher_save(skill.second, skill_path_2);
-            index++;
+        for (size_t i = 0; i < data.skills.size(); ++i) {
+            for (size_t j = 0; j < data.skills[i].size(); ++j) {
+                std::string skill_path = dir_path + "/skills/" + std::to_string(i) + "_" + std::to_string(j);
+                cipher_save(data.skills[i][j], skill_path);
+            }
         }
     }
 
@@ -78,24 +76,34 @@ public:
                 std::string employee_id = employee_dir.path().filename().string();
                 employee_data.id = std::stoi(employee_id);
 
-                // Load age pair
-                std::string age_path_1 = dir_path + "/" + employee_id + "/age_1";
-                cipher_load(employee_data.age.first, context, age_path_1);
-                std::string age_path_2 = dir_path + "/" + employee_id + "/age_2";
-                cipher_load(employee_data.age.second, context, age_path_2);
-
-                // Load skills pairs
-                std::string skills_dir = dir_path + "/" + employee_id + "/skills";
-                for (int index = 0; ; ++index) {
-                    std::string skill_path_1 = skills_dir + "/" + std::to_string(index) + "_1";
-                    std::string skill_path_2 = skills_dir + "/" + std::to_string(index) + "_2";
-                    if (!std::filesystem::exists(skill_path_1) || !std::filesystem::exists(skill_path_2)) {
+                // Load age vector
+                for (size_t i = 0; ; ++i) {
+                    std::string age_path = dir_path + "/" + employee_id + "/age_" + std::to_string(i);
+                    if (!std::filesystem::exists(age_path)) {
                         break;
                     }
-                    seal::Ciphertext skill_first, skill_second;
-                    cipher_load(skill_first, context, skill_path_1);
-                    cipher_load(skill_second, context, skill_path_2);
-                    employee_data.skills.push_back({skill_first, skill_second});
+                    seal::Ciphertext age_cipher;
+                    cipher_load(age_cipher, context, age_path);
+                    employee_data.age.push_back(age_cipher);
+                }
+
+                // Load skills vectors
+                std::string skills_dir = dir_path + "/" + employee_id + "/skills";
+                for (size_t i = 0; ; ++i) {
+                    std::vector<seal::Ciphertext> skill_vector;
+                    for (size_t j = 0; ; ++j) {
+                        std::string skill_path = skills_dir + "/" + std::to_string(i) + "_" + std::to_string(j);
+                        if (!std::filesystem::exists(skill_path)) {
+                            break;
+                        }
+                        seal::Ciphertext skill_cipher;
+                        cipher_load(skill_cipher, context, skill_path);
+                        skill_vector.push_back(skill_cipher);
+                    }
+                    if (skill_vector.empty()) {
+                        break;
+                    }
+                    employee_data.skills.push_back(skill_vector);
                 }
                 all_employee_data.push_back(employee_data);
             }
@@ -118,4 +126,4 @@ public:
     }
 };
 
-#endif //SEAL_REAL_RESPOSITORY_HPP
+#endif //SEAL_REAL_REPOSITORY_HPP

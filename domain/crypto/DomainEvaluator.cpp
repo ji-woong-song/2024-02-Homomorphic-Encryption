@@ -53,3 +53,13 @@ seal::Ciphertext DomainEvaluator::evaluate_union(std::vector<seal::Ciphertext>& 
     evaluator.add_many(cipertexts, result);
     return result;
 }
+
+void DomainEvaluator::evaluate_div_inplace(seal::Ciphertext& a, size_t c) {
+    using namespace std;
+    using namespace seal;
+
+    Plaintext plaintext(1);
+    plaintext[0] = c;
+    evaluator.multiply_plain_inplace(a, plaintext);
+    evaluator.relinearize_inplace(a, relinKeys);
+}

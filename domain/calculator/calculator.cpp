@@ -31,3 +31,12 @@ size_t Calculator::get_numerator(const size_t& target) {
     std::cout << "numerator : " << numerator << "\n";
     return numerator;
 }
+
+size_t Calculator::get_naive_reverse_element(size_t x) {
+    for (size_t i = 1; i < plain_modulus; i++) {
+        if ((x * i) % plain_modulus == 1) {
+            return i;
+        }
+    }
+    return 0;
+}

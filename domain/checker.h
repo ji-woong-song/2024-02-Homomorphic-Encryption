@@ -20,11 +20,15 @@ private:
     DomainEncryptor& encryptor;
     Encoder& encoder;
     Calculator& calculator;
-    Monitor& monitor;
     int max_width;
+    std::vector<int>& c_vector;
 public:
-    Checker(seal::SEALContext& context,Encoder& encoder, DomainEncryptor& encryptor, DomainEvaluator& evaluator, Calculator& calculator, Monitor& monitor, int max_width)
-    :context(context), encoder(encoder), evaluator(evaluator), encryptor(encryptor), calculator(calculator), monitor(monitor), max_width(max_width) {}
+    Checker(seal::SEALContext& context,Encoder& encoder, DomainEncryptor& encryptor,
+            DomainEvaluator& evaluator, Calculator& calculator,
+            std::vector<int>& c_vector,
+            int max_width)
+    : context(context), encoder(encoder), evaluator(evaluator), encryptor(encryptor), calculator(calculator),
+   c_vector(c_vector), max_width(max_width) {}
     
     seal::Ciphertext check_age(int min_age, int max_age, std::vector<seal::Ciphertext>& encrypted_age);
     seal::Ciphertext check_skills(const std::vector<int>& skills, std::vector<std::vector<seal::Ciphertext>>& encrypted_skills);

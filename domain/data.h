@@ -14,8 +14,8 @@ struct PublicKeyEntry {
 
 struct EmployeeData {
     int id;
-    std::pair<seal::Ciphertext, seal::Ciphertext> age;
-    std::vector<std::pair<seal::Ciphertext, seal::Ciphertext>> skills;
+    std::vector<seal::Ciphertext> age;
+    std::vector<std::vector<seal::Ciphertext>> skills;
 };
 
 struct MatchingParam {

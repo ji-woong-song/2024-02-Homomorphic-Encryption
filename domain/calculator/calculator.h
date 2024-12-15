@@ -20,6 +20,7 @@ public:
 
     size_t get_numerator_reverse_element(size_t x);
     size_t get_numerator(const size_t& target);
+    size_t get_naive_reverse_element(size_t x);
 };
 
 

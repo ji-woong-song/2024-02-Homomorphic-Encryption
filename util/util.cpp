@@ -99,7 +99,7 @@ void key_save(seal::RelinKeys& relinKeys, const std::string& filename) {
     out.close();
 }
 
-void key_load(seal::PublicKey& publicKey, seal::SEALContext& context, std::string& filename) {
+void key_load(seal::PublicKey& publicKey, seal::SEALContext& context, const std::string& filename) {
     std::ifstream in(filename, std::ios::binary);
     if (!in.is_open()) {
         std::cerr << "public key fail\n";
@@ -109,7 +109,7 @@ void key_load(seal::PublicKey& publicKey, seal::SEALContext& context, std::strin
     in.close();
 }
 
-void key_load(seal::SecretKey& secretKey, seal::SEALContext& context, std::string& filename) {
+void key_load(seal::SecretKey& secretKey, seal::SEALContext& context, const std::string& filename) {
     std::ifstream in(filename, std::ios::binary);
     if (!in.is_open()) {
         std::cerr << "secret key fail\n";
@@ -119,7 +119,7 @@ void key_load(seal::SecretKey& secretKey, seal::SEALContext& context, std::strin
     in.close();
 }
 
-void key_load(seal::RelinKeys& relinKeys, seal::SEALContext& context, std::string& filename) {
+void key_load(seal::RelinKeys& relinKeys, seal::SEALContext& context, const std::string& filename) {
     std::ifstream in(filename, std::ios::binary);
     if (!in.is_open()) {
         std::cerr << "relinKeys key fail\n";

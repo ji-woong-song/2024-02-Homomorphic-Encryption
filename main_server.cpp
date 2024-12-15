@@ -1,121 +1,144 @@
 ﻿#include "seal/seal.h"
 #include "util/util.h"
+#include "domain/repository.hpp"
+#include "domain/crypto/DomainEvaluator.h"
+#include "domain/repository.hpp"
+#include "domain/checker.h"
+#include "domain/crypto/CryptoFactory.h"
+#include <boost/asio.hpp>
 #include <iostream>
-#include <fstream>
-#include "domain/matcher.hpp"
-#include <vector>
-#include "domain/MatchingService.hpp"
+#include <sstream>
 
 using namespace std;
 using namespace seal;
+using boost::asio::ip::tcp;
 
+vector<int> c_vector;
 
-void init_c_table(const char * filename, vector<size_t>& c_vector) {
-    // c_table 파일에서 데이터 읽기
-    ifstream file_input("c_table", ifstream::in);
-    if (!file_input.is_open()) {
-        cout << "파일 연결 실패" << "\n";
-    }
+void handle_client(tcp::socket& socket,
+                   SEALContext& context,
+                   Repository& repository,
+                   seal::Evaluator& seal_evaluator) {
+    using namespace std;
 
-    string line;
-    file_input >> line;
-    file_input >> line;
-    file_input >> line;
+    try {
+        // 클라이언트로부터 조건 수신
+        char request[1024];
+        size_t request_length = socket.read_some(boost::asio::buffer(request));
+        stringstream ss(string(request, request_length));
 
-    c_vector.push_back(1);
-    for (int i = 0; i < 10 ; i++) {
-        size_t item = 0;
-        file_input >> line;
-        for (auto & c : line) {
-            item = 10 * item + (c - '0');
+        // employer_id는 예시로 "employer1"로 설정
+        // id 읽기
+        char id_request[1024];
+        size_t id_length = socket.read_some(boost::asio::buffer(id_request));
+        string id_str(id_request, id_length);
+        string employer_id = id_str.substr(3); // "id:" 이후의 문자열
+        auto employee_data_list = repository.load_all_employee_data(employer_id);
+
+        auto publicKey = repository.load_public_key(employer_id);
+        auto relinKey = repository.load_relin_key(employer_id);
+        seal::Encryptor seal_encryptor(context, publicKey);
+        CryptoFactory factory(context, 4, 3);
+        auto encryptor = factory.createEncryptor(seal_encryptor);
+        auto evaluator = factory.createEvaluator(seal_evaluator, relinKey, seal_encryptor);
+        auto calculator = factory.createCalculator();
+        if (c_vector.empty()) {
+            c_vector.push_back(1);
+            for (int i = 1; i <= 4; i++) {
+                c_vector.push_back(calculator.get_numerator_reverse_element(i));
+            }
         }
-        cout << item << "\n";
-        c_vector.push_back(item); // 각 줄을 정수로 변환하여 c_vector에 추가
+        auto checker = factory.createChecker(evaluator, encryptor, calculator, c_vector);
+
+
+
+        // 조건 읽기
+        char condition_request[1024];
+        size_t condition_length = socket.read_some(boost::asio::buffer(condition_request));
+        string condition_str(condition_request, condition_length);
+
+        // 조건 파싱
+        string age_condition, skills_condition;
+        stringstream condition_ss(condition_str);
+        getline(condition_ss, age_condition, ';');
+        getline(condition_ss, skills_condition);
+
+        int min_age, max_age;
+        sscanf(age_condition.c_str(), "age:%d-%d", &min_age, &max_age);
+
+        vector<int> skill_ids;
+        stringstream skills_stream(skills_condition.substr(7)); // "skills:" 이후부터 파싱
+        string skill_id;
+        while (getline(skills_stream, skill_id, ',')) {
+            skill_ids.push_back(stoi(skill_id));
+        }
+
+        // 매칭 및 필터링
+        vector<EmployeeData> filtered_data;
+        for (auto& employee_data : employee_data_list) {
+            auto age_match = checker.check_age(min_age, max_age, employee_data.age);
+            auto skill_match = checker.check_skills(skill_ids, employee_data.skills);
+            Ciphertext match_result;
+            seal_evaluator.multiply(age_match, skill_match, match_result);
+            seal_evaluator.relinearize_inplace(match_result, relinKey);
+
+            // 각 vector 안의 Ciphertext에 match result 곱하고 relinearize
+            for (auto& data : employee_data.skills) {
+                for (auto & item : data) {
+                    seal_evaluator.multiply_inplace(item, match_result);
+                    seal_evaluator.relinearize_inplace(item, relinKey);
+                }
+            }
+            for (auto &item: employee_data.age) {
+                seal_evaluator.multiply_inplace(item, match_result);
+                seal_evaluator.relinearize_inplace(item, relinKey);
+            }
+        }
+        // 결과 저장
+        for (const auto& data : filtered_data) {
+            string base_path = "result/" + employer_id + "/" + to_string(data.id) + "/";
+            filesystem::create_directories(base_path);
+
+            // age의 각 item 들을 인덱스 번호에 맞게 age_0 age_1 이런식으로 저장
+            for (int i = 0; i < data.age.size(); i++) {
+                string age_file_name = base_path + "age_" + to_string(i);
+                ofstream age_file(age_file_name, ios::binary);
+                data.age[i].save(age_file);
+                age_file.close();
+            }
+            // skills 저장 
+            for (int i = 0; i < data.skills.size(); i++) {
+                string skills_file_name = base_path + "skills_" + to_string(i);
+                // 이것도 마찬가지로 인덱스 번호에 맞게 skills_0 skills_1 이런식으로 저장
+                for (int j = 0; j < data.skills[i].size(); j++) {
+                    string skill_file_name = skills_file_name + "_" + to_string(j);
+                    ofstream skill_file(skill_file_name, ios::binary);
+                    data.skills[i][j].save(skill_file);
+                    skill_file.close();
+                }
+            }
+        }
+        boost::asio::write(socket, boost::asio::buffer("done"));
+    } catch (exception& e) {
+        cerr << "Exception in handle_client: " << e.what() << "\n";
     }
-    file_input.close(); // 파일 닫기
 }
 
-
 int main() {
-    size_t poly_modulus_degree = 16384;
-    size_t plain_modulus_value = 362897;
-    SEALContext context = load_context();
+    try {
+        SEALContext context = load_context();
+        Repository repository(context);
+        seal::Evaluator evaluator(context);
+        boost::asio::io_service io_service;
+        tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 12345));
 
-    vector<size_t> c_vector;
-    init_c_table("c_table", c_vector);
-
-    KeyGenerator keygen(context);
-    PublicKey public_key;
-    keygen.create_public_key(public_key);
-    SecretKey secret_key = keygen.secret_key();
-    RelinKeys relin_keys;
-    keygen.create_relin_keys(relin_keys);
-
-    Encryptor encryptor(context, public_key);
-    Evaluator evaluator(context);
-    Decryptor decryptor(context, secret_key);
-
-    Matcher matcher(10, c_vector, plain_modulus_value);
-    Repository repository(context);
-    Monitor monitor(decryptor, plain_modulus_value);
-    MatchingService matchingService(monitor, repository, matcher, context);
-
-
-    vector<pair<size_t, size_t>> user_ages = {
-            {2, 1},
-            {2,5}
-    };
-    vector<vector<pair<size_t,size_t>>> user_skills = {
-        {{1 , 1}, {1, 2}, {1, 3}, {2, 1}},
-        {{1 , 2}, {1, 3}, {2, 1}, {2, 2}},
-    };
-    
-    vector<EmployeeData> encrypted_data;
-    for (int i = 0 ; i < user_ages.size() ; i++) {
-        auto &age = user_ages[i];
-        auto &skills = user_skills[i];
-
-        EmployeeData data;
-        data.id = i;
-        Ciphertext a_first =  encrypt(age.first, encryptor);
-        Ciphertext b_first = encrypt(age.second, encryptor);
-        data.age = {a_first, b_first};
-        vector<pair<Ciphertext, Ciphertext>> cipher_skills;
-        for (auto & skill : skills) {
-            seal::Ciphertext first = encrypt(skill.first, encryptor);
-            seal::Ciphertext second =encrypt(skill.second, encryptor);
-            cipher_skills.push_back({first, second});
+        while (true) {
+            tcp::socket socket(io_service);
+            acceptor.accept(socket);
+            handle_client(socket, context, repository, evaluator);
         }
-        data.skills = cipher_skills;
-        encrypted_data.push_back(data);
-    }
-
-    vector<pair<size_t, size_t>> ages = {{2, 1}, {2,2} ,{2, 3}, {2, 4}};
-    vector<pair<size_t, size_t>> skills = {{1, 1}, {2, 1}};
-
-    matchingService.filter(encrypted_data, public_key, relin_keys, ages, skills);
-
-    // decrypt
-    cout << "\n=== 원본 데이터 및 복호화 결과 ===" << endl;
-    
-    for (const auto& data : encrypted_data) {
-        cout << "\n지원자 ID: " << data.id << endl;
-        
-        // 나이 복호화
-        Plaintext age_plain1, age_plain2;
-        decryptor.decrypt(data.age.first, age_plain1);
-        decryptor.decrypt(data.age.second, age_plain2);
-        cout << "나이: (" << age_plain1.data()[0] << ", " << age_plain2.data()[0] << ")" << endl;
-        
-        // 스킬 복호화
-        cout << "스킬: ";
-        for (const auto& skill : data.skills) {
-            Plaintext skill_plain1, skill_plain2;
-            decryptor.decrypt(skill.first, skill_plain1);
-            decryptor.decrypt(skill.second, skill_plain2);
-            cout << "(" << skill_plain1.data()[0] << ", " << skill_plain2.data()[0] << ") ";
-        }
-        cout << endl;
+    } catch (exception& e) {
+        cerr << "Exception in main: " << e.what() << "\n";
     }
 
     return 0;

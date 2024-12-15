@@ -55,27 +55,28 @@ private:
         << "4: query\n"
         << "5: show condition\n"
         << "6: log out\n"
-        ;
-        cout << "cmd : ";
+        << "7: view query results\n"
+        << "----------------------------------\n"
+        << "cmd : ";
         cin >> cmd;
-
         string input_name;
         switch (cmd) {
             case 1:
-                int m, M;
-                cin >> m >> M;
-                client.set_age(m, M);
+                int min_age, max_age;
+                cout << "Enter min and max age: ";
+                cin >> min_age >> max_age;
+                client.set_age(min_age, max_age);
                 break;
             case 2:
                 skillTable.showTable(cout);
                 break;
             case 3:
-                cout << "input skill name : ";
+                cout << "Input skill name: ";
                 cin >> input_name;
                 client.add_skill(input_name);
                 break;
             case 4:
-                client.query();
+                client.query(id);
                 break;
             case 5:
                 client.show_age_condition();
@@ -84,14 +85,19 @@ private:
             case 6:
                 phase = 0;
                 break;
+            case 7:
+                client.query_result(id);
+                break;
             default:
                 return false;
         }
         return true;
     }
+
 public:
     EmployerProgram(EmployerClient & client, SkillTable& skillTable) : client(client), skillTable(skillTable) {
         this->phase = 0;
+        client.reset_skill();
     }
     int show_prompt() {
         switch (phase) {

@@ -9,9 +9,9 @@
 #include <iostream>
 #include <vector>
 #include "seal/seal.h"
-#include "../util/util.h"
-#include "data.h"
-#include "Monitor.hpp"
+#include "../../util/util.h"
+#include "../data.h"
+#include "../Monitor.hpp"
 
 using namespace std;
 using namespace seal;
