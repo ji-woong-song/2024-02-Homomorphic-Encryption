@@ -4,21 +4,23 @@
 
 #include "CryptoFactory.h"
 
-DomainEncryptor CryptoFactory::createEncryptor(seal::PublicKey publicKey) {
-    using namespace seal;
-    return {context, *encoder, publicKey};
+DomainEncryptor CryptoFactory::createEncryptor(seal::Encryptor& encryptor) {
+    return {context, *encoder, encryptor};
 }
 
-DomainDecryptor CryptoFactory::createDecryptor(seal::SecretKey secretKey) {
-    return {context, *decoder, secretKey};
+DomainDecryptor CryptoFactory::createDecryptor(seal::Decryptor& decryptor) {
+    return {context, *decoder, decryptor};
 }
 
-DomainEvaluator CryptoFactory::createEvaluator(seal::PublicKey publicKey, seal::RelinKeys relinKeys) {
-    return {context, relinKeys, publicKey, width_per_encode, max_slot };
+DomainEvaluator CryptoFactory::createEvaluator(seal::Evaluator& evaluator, seal::RelinKeys& relinKeys, seal::Encryptor& encryptor) {
+    return {context, relinKeys, evaluator, encryptor, width_per_encode };
 }
 
-Checker CryptoFactory::createChecker(DomainEvaluator &evaluator, DomainEncryptor &encryptor, Calculator& calculator) {
-    return {context, *encoder, encryptor, evaluator, calculator, width_per_encode };
+Checker CryptoFactory::createChecker(
+        DomainEvaluator &evaluator, DomainEncryptor &encryptor,
+        Calculator& calculator, Monitor& monitor
+) {
+    return {context, *encoder, encryptor, evaluator, calculator, monitor, width_per_encode };
 }
 
 Calculator CryptoFactory::createCalculator() {

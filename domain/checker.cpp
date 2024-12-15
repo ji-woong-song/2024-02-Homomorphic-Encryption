@@ -3,7 +3,6 @@
 //
 
 #include "checker.h"
-#include "Monitor.hpp"
 
 seal::Ciphertext Checker::check_age(int min_age, int max_age, std::vector<seal::Ciphertext>& encrypted_age) {
     using namespace std;
@@ -19,6 +18,7 @@ seal::Ciphertext Checker::check_age(int min_age, int max_age, std::vector<seal::
             terms.push_back(match_result);
         }
         Ciphertext final_match = evaluator.evaluate_intersection(terms);
+        monitor.debug(final_match);
         final_terms.push_back(final_match);
     }
     return evaluator.evaluate_union(final_terms);

@@ -12,7 +12,8 @@ int DomainDecryptor::decrypte_single(const std::vector<seal::Ciphertext>& age){
     for (auto& cipher: age) {
         Plaintext plaintext;
         decryptor.decrypt(cipher, plaintext);
-        vec.push_back(plaintext[0]);
+        size_t res = stoull(plaintext.to_string()) % (context.first_context_data()->parms().poly_modulus_degree());
+        vec.push_back(res);
     }
     int result = decoder.decode(vec);
     return result;

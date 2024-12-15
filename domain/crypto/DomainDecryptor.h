@@ -12,10 +12,10 @@ class DomainDecryptor {
 private:
     seal::SEALContext& context;
     Decoder& decoder;
-    seal::Decryptor decryptor;
+    seal::Decryptor& decryptor;
 public:
-    DomainDecryptor(seal::SEALContext& context, Decoder& decoder, seal::SecretKey secretKey)
-    : context(context), decoder(decoder), decryptor(seal::Decryptor(context, secretKey)) {}
+    DomainDecryptor(seal::SEALContext& context, Decoder& decoder, seal::Decryptor& decryptor)
+    : context(context), decoder(decoder), decryptor(decryptor) {}
 
     int decrypte_single(const std::vector<seal::Ciphertext>& age);
     std::vector<int> decrypte_multiple(const std::vector<std::vector<seal::Ciphertext>>& skill);

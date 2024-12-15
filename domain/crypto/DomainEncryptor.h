@@ -12,11 +12,11 @@
 class DomainEncryptor {
 private:
     seal::SEALContext& context;
-    seal::Encryptor encryptor;
+    seal::Encryptor& encryptor;
     Encoder& encoder;
 public:
-    DomainEncryptor(seal::SEALContext& context, Encoder& encoder, seal::PublicKey publicKey)
-    : context(context), encoder(encoder), encryptor(seal::Encryptor(context, publicKey)) {}
+    DomainEncryptor(seal::SEALContext& context, Encoder& encoder, seal::Encryptor& encryptor)
+    : context(context), encoder(encoder), encryptor(encryptor) {}
     std::vector<seal::Ciphertext> encrypte_single(int age);
     std::vector<std::vector<seal::Ciphertext>> encrypte_multiple(std::vector<int>& skills);
 };

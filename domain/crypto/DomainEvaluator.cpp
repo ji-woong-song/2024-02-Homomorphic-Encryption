@@ -10,9 +10,13 @@ seal::Ciphertext DomainEvaluator::evaluate_matching_circuit(const size_t& target
 
     Ciphertext result;
     std::vector<Ciphertext> terms;
+    Plaintext plain_c(1);
+    Ciphertext encrypt_c;
+    plain_c[0] = c;
+    encryptor.encrypt(plain_c, encrypt_c);
+
     for (int i = 1; i <= domain; i++) {
         if (i == target) continue;
-
         Plaintext plaintext(1);
         plaintext[0] = i;
         Ciphertext encry_i, encry_x_i;
@@ -26,11 +30,6 @@ seal::Ciphertext DomainEvaluator::evaluate_matching_circuit(const size_t& target
         terms.push_back(encry_x_i);
     }
     evaluator.multiply_many(terms, relinKeys, result);
-
-    Plaintext plain_c(1);
-    Ciphertext encrypt_c;
-    plain_c[0] = c;
-    encryptor.encrypt(plain_c, encrypt_c);
     evaluator.multiply_inplace(result, encrypt_c);
     evaluator.relinearize_inplace(result, relinKeys);
     return result;

@@ -29,10 +29,10 @@ public:
         this->max_slot = max_slot;
     }
 
-    DomainEncryptor createEncryptor(seal::PublicKey publicKey);
-    DomainDecryptor createDecryptor(seal::SecretKey secretKey);
-    DomainEvaluator createEvaluator(seal::PublicKey publicKey, seal::RelinKeys relinKeys);
-    Checker createChecker(DomainEvaluator& evaluator, DomainEncryptor& encryptor, Calculator& calculator);
+    DomainEncryptor createEncryptor(seal::Encryptor& encryptor);
+    DomainDecryptor createDecryptor(seal::Decryptor& decryptor);
+    DomainEvaluator createEvaluator(seal::Evaluator& evaluator, seal::RelinKeys& relinKeys, seal::Encryptor& encryptor);
+    Checker createChecker(DomainEvaluator& evaluator, DomainEncryptor& encryptor, Calculator& calculator, Monitor& monitor);
     Calculator createCalculator();
 };
 

@@ -8,7 +8,7 @@ std::vector<seal::Ciphertext> DomainEncryptor::encrypte_single(int age) {
     using namespace seal;
     std::vector<size_t> encoded_age = encoder.encode(age);
     std::vector<seal::Ciphertext> vec;
-    for (size_t &enc: encoded_age) {
+    for (size_t enc: encoded_age) {
         Plaintext plaintext(1);
         plaintext[0] = enc;
         Ciphertext ciphertext;
